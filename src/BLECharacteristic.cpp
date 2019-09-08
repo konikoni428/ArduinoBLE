@@ -170,10 +170,9 @@ int BLECharacteristic::readValue(uint8_t value[], int length)
   }
 
   if (_remote) {
-    // trigger a read if the value hasn't been updated via
-    // indication or notification, and the characteristic is
-    // readable
-    if (!valueUpdated() && canRead()) {
+    // trigger a read if the updated value (notification/indication)
+    // has already been read and the characteristic is readable
+    if (_remote->updatedValueRead() && canRead()) {
       if (!read()) {
         // read failed
         return 0;
@@ -383,7 +382,7 @@ bool BLECharacteristic::hasDescriptor(const char* uuid, int index) const
     for (int i = 0; i < numDescriptors; i++) {
       BLERemoteDescriptor* d = _remote->descriptor(i);
 
-      if (strcmp(uuid, d->uuid()) == 0) {
+      if (strcasecmp(uuid, d->uuid()) == 0) {
         if (count == index) {
           return true;
         }
@@ -419,7 +418,7 @@ BLEDescriptor BLECharacteristic::descriptor(const char * uuid, int index) const
     for (int i = 0; i < numDescriptors; i++) {
       BLERemoteDescriptor* d = _remote->descriptor(i);
 
-      if (strcmp(uuid, d->uuid()) == 0) {
+      if (strcasecmp(uuid, d->uuid()) == 0) {
         if (count == index) {
           return BLEDescriptor(d);
         }
