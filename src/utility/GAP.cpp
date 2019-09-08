@@ -93,7 +93,21 @@ int GAPClass::advertise()
   advertisingData[2] = 0x06;
   advertisingDataLen += 3;
 
-  if (_advertisedServiceUuid) {
+  if(_advertisedServiceUuid && (_manufacturerData && _manufacturerDataLength)){
+    BLEUuid uuid(_advertisedServiceUuid);
+    int uuidLen = uuid.length();
+
+    advertisingData[3] = 1 + uuidLen;
+    advertisingData[4] = (uuidLen > 2) ? 0x06 : 0x02;
+    memcpy(&advertisingData[5], uuid.data(), uuidLen);
+    advertisingDataLen += (2 + uuidLen);
+
+    advertisingData[advertisingDataLen++] = 1 + _manufacturerDataLength;
+    advertisingData[advertisingDataLen++] = 0xff;
+    memcpy(&advertisingData[advertisingDataLen], _manufacturerData, _manufacturerDataLength);
+
+    advertisingDataLen += _manufacturerDataLength;
+  } else if (_advertisedServiceUuid) {
     BLEUuid uuid(_advertisedServiceUuid);
     int uuidLen = uuid.length();
 
